@@ -1,0 +1,24 @@
+{
+  "name": "todo.txt.js",
+  "version": "0.0.1",
+  "description": "todo cli with todo.txt",
+  "main": "index.js",
+  "repository": "https://github.com/wicksome/todo.go.git",
+  "author": "Yeongjun.kim <opid911@gmail.com> (wickso.me)",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./node_modules/babel-cli/bin/babel-node --debug --presets es2015 -- ./src/todo.js",
+    "build": "babel src -d dist"
+  },
+  "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "cli-table": "^0.3.1",
+    "colors": "^1.1.2",
+    "commander": "^2.11.0",
+    "table": "^4.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1"
+  }
+}
