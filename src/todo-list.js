@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 'use strict';
 
 import * as fs from 'fs';
@@ -98,15 +97,34 @@ _.toElementOfTable = (todo, idx) => {
 
 /**
  * Load todo.txt and done.txt
- * @param isAll if true, get todo and done
- * @returns {string}
  */
-_.load = (isAll) => {
-  if (isAll) {
-    return fs.readFileSync(DONE_TXT_PATH, 'utf8').concat(fs.readFileSync(TODO_TXT_PATH, 'utf8'));
+_.load = (option) => {
+  let origin;
+  if (option.isAll) {
+    origin = fs.readFileSync(DONE_TXT_PATH, 'utf8').concat(fs.readFileSync(TODO_TXT_PATH, 'utf8'));
   } else {
-    return fs.readFileSync(TODO_TXT_PATH, 'utf8');
+    origin = fs.readFileSync(TODO_TXT_PATH, 'utf8');
   }
+
+  let todos = TodoTxt.parse(origin);
+
+  if (option.context) {
+    todos = todos.filter((todo) => todo.contexts && todo.contexts.includes(option.context));
+  }
+
+  if (option.project) {
+    todos = todos.filter((todo) => todo.projects && todo.projects.includes(option.project));
+  }
+
+  if (option.keyword) {
+    const regex = new RegExp(`(${option.keyword})`, 'i');
+    todos = todos.filter((todo) => todo.text.search(regex) !== -1);
+    todos.forEach((todo) => {
+      todo.text = todo.text.replace(regex, '$1'.underline.italic);
+    });
+  }
+
+  return todos
 };
 
 _.show = function(todoItems) {
@@ -116,27 +134,22 @@ _.show = function(todoItems) {
     completed = todoItems.filter((todo) => todo.complete).length,
     active = todoItems.length - completed;
 
+  const todos = todoItems.map(_.toElementOfTable);
+
   // print to prompt
   console.log();
   console.log(`  Date: ${today.white} - All: ${colors.white(all)}, Active: ${colors.white(active)}, Completed: ${colors.white(completed)}`);
-  process.stdout.write(table(todoItems.map(_.toElementOfTable), tableConfig)); // without trailing newline
+  process.stdout.write(table(todos, tableConfig)); // without trailing newline
 };
 
 export default (cmd = 'list', env) => {
   // options
-  const isAll = env.all,
-    keyword = env.args[0],
-    context = env.context,
-    project = env.project;
+  const option = {
+    isAll : env.all,
+    context : env.context,
+    project : env.project,
+    keyword : env.search
+  };
 
-  isAll && console.log("show all with done".yellow);
-  project && console.log(`"${project}" is search project`.yellow);
-  context && console.log(`"${context}" is search context`.yellow);
-  keyword && console.log(`"${keyword}" is search keyword`.yellow);
-
-  const todoTxt = _.load(isAll);
-
-  const todos = TodoTxt.parse(todoTxt);
-
-  _.show(todos);
+  _.show(_.load(option));
 }

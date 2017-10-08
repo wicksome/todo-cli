@@ -7,21 +7,21 @@ import todo from './todo-route.js';
 // ----------------------------------------------------------------------------
 cli
   .version('0.1.0')
-  .description('testsetst');
+  .description('A simple and extensible JavaScript App for managing you todo.txt file.');
 
 // ----------------------------------------------------------------------------
 cli
   .command('init')
-  .description('')
+  .description('Initialize a collection of todos')
   .action(todo.init);
 
 // ----------------------------------------------------------------------------
 cli
   .command('add <todo>')
   .alias('a')
-  .option('-p, --project <project name>', 'Add project')
-  .option('-c, --context <context name>', 'Add context')
   .description('Add a new todo')
+  .option('-p, --project <project>', 'add with project')
+  .option('-c, --context <context>', 'add with context')
   .action(todo.add)
   .on('--help', function() {
     console.log();
@@ -34,7 +34,7 @@ cli
 
 // ----------------------------------------------------------------------------
 cli
-  .command('modify <id>')
+  .command('modify <id> <todo>')
   .alias('m')
   .description('Modify the text of an existing todo')
   .action(todo.modify)
@@ -57,13 +57,12 @@ cli
 let option = {};
 /** show todo list(default) */
 cli
-// .option('-c, --context <type>', 'show context', (context) => Object.assign(option, {context}))
-// .option('-p, --project <type>', 'Add the specified type of cheese [marble]', (project) => Object.assign(option, {project}))
-  .option('-a, --all', 'show all todo(with done.txt)')
-  .option('-s, --search <keyword>', 'show context')
-  .option('-c, --context <type>', 'show context')
-  .option('-p, --project <type>', 'Add the specified type of cheese [marble]')
-  .option('-d, --detail', 'show detail view')
+// .command('list')
+  .option('-a, --all', 'output all todos')
+  .option('-d, --done', 'output done todos')
+  .option('-s, --search <keyword>', 'search a string in todos')
+  .option('-c, --context <context>', 'search a context in todos')
+  .option('-p, --project <project>', 'search a project in todos')
   .parse(process.argv);
 
 // ----------------------------------------------------------------------------

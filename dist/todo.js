@@ -14,15 +14,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // ----------------------------------------------------------------------------
 _commander2.default
-// .option('-c, --context <type>', 'show context', (context) => Object.assign(option, {context}))
-// .option('-p, --project <type>', 'Add the specified type of cheese [marble]', (project) => Object.assign(option, {project}))
-.version('0.1.0').description('testsetst');
+// .command('list')
+.version('0.1.0').description('A simple and extensible JavaScript App for managing you todo.txt file.');
 
 // ----------------------------------------------------------------------------
-_commander2.default.command('init').description('').action(_todoRoute2.default.init);
+_commander2.default.command('init').description('Initialize a collection of todos').action(_todoRoute2.default.init);
 
 // ----------------------------------------------------------------------------
-_commander2.default.command('add <todo>').alias('a').option('-p, --project <project name>', 'Add project').option('-c, --context <context name>', 'Add context').description('Add a new todo').action(_todoRoute2.default.add).on('--help', function () {
+_commander2.default.command('add <todo>').alias('a').description('Add a new todo').option('-p, --project <project>', 'add with project').option('-c, --context <context>', 'add with context').action(_todoRoute2.default.add).on('--help', function () {
   console.log();
   console.log('  Example:');
   console.log();
@@ -32,7 +31,7 @@ _commander2.default.command('add <todo>').alias('a').option('-p, --project <proj
 });
 
 // ----------------------------------------------------------------------------
-_commander2.default.command('modify <id>').alias('m').description('Modify the text of an existing todo').action(_todoRoute2.default.modify);
+_commander2.default.command('modify <id> <todo>').alias('m').description('Modify the text of an existing todo').action(_todoRoute2.default.modify);
 
 // ----------------------------------------------------------------------------
 _commander2.default.command('toggle <id>').alias('t').description('Toggle the status of a todo by giving his id').action(_todoRoute2.default.toggle);
@@ -43,7 +42,7 @@ _commander2.default.command('clean').alias('c').description('Remove finished tod
 // ----------------------------------------------------------------------------
 var option = {};
 /** show todo list(default) */
-_commander2.default.option('-a, --all', 'show all todo(with done.txt)').option('-s, --search <keyword>', 'show context').option('-c, --context <type>', 'show context').option('-p, --project <type>', 'Add the specified type of cheese [marble]').option('-d, --detail', 'show detail view').parse(process.argv);
+_commander2.default.option('-a, --all', 'output all todos').option('-d, --done', 'output done todos').option('-s, --search <keyword>', 'search a string in todos').option('-c, --context <context>', 'search a context in todos').option('-p, --project <project>', 'search a project in todos').parse(process.argv);
 
 // ----------------------------------------------------------------------------
 // exec default command

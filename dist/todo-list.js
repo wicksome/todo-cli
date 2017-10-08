@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29,6 +28,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 // ----------------------------------------------------------------------------
 var _ = {}; // private object
+
 var TODO_TXT_PATH = path.join(process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE, 'Dropbox', 'todo', 'todo.txt');
 var DONE_TXT_PATH = path.join(process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE, 'Dropbox', 'todo', 'done.txt');
 
@@ -116,15 +116,40 @@ _.toElementOfTable = function (todo, idx) {
 
 /**
  * Load todo.txt and done.txt
- * @param isAll if true, get todo and done
- * @returns {string}
  */
-_.load = function (isAll) {
-  if (isAll) {
-    return fs.readFileSync(DONE_TXT_PATH, 'utf8').concat(fs.readFileSync(TODO_TXT_PATH, 'utf8'));
+_.load = function (option) {
+  var origin = void 0;
+  if (option.isAll) {
+    origin = fs.readFileSync(DONE_TXT_PATH, 'utf8').concat(fs.readFileSync(TODO_TXT_PATH, 'utf8'));
   } else {
-    return fs.readFileSync(TODO_TXT_PATH, 'utf8');
+    origin = fs.readFileSync(TODO_TXT_PATH, 'utf8');
   }
+
+  var todos = _jsTodoTxt.TodoTxt.parse(origin);
+
+  if (option.context) {
+    todos = todos.filter(function (todo) {
+      return todo.contexts && todo.contexts.includes(option.context);
+    });
+  }
+
+  if (option.project) {
+    todos = todos.filter(function (todo) {
+      return todo.projects && todo.projects.includes(option.project);
+    });
+  }
+
+  if (option.keyword) {
+    var regex = new RegExp('(' + option.keyword + ')', 'i');
+    todos = todos.filter(function (todo) {
+      return todo.text.search(regex) !== -1;
+    });
+    todos.forEach(function (todo) {
+      todo.text = todo.text.replace(regex, '$1'.underline.italic);
+    });
+  }
+
+  return todos;
 };
 
 _.show = function (todoItems) {
@@ -136,10 +161,12 @@ _.show = function (todoItems) {
   }).length,
       active = todoItems.length - completed;
 
+  var todos = todoItems.map(_.toElementOfTable);
+
   // print to prompt
   console.log();
   console.log('  Date: ' + today.white + ' - All: ' + _colors2.default.white(all) + ', Active: ' + _colors2.default.white(active) + ', Completed: ' + _colors2.default.white(completed));
-  process.stdout.write((0, _table.table)(todoItems.map(_.toElementOfTable), tableConfig)); // without trailing newline
+  process.stdout.write((0, _table.table)(todos, tableConfig)); // without trailing newline
 };
 
 exports.default = function () {
@@ -147,19 +174,12 @@ exports.default = function () {
   var env = arguments[1];
 
   // options
-  var isAll = env.all,
-      keyword = env.args[0],
-      context = env.context,
-      project = env.project;
+  var option = {
+    isAll: env.all,
+    context: env.context,
+    project: env.project,
+    keyword: env.search
+  };
 
-  isAll && console.log("show all with done".yellow);
-  project && console.log(('"' + project + '" is search project').yellow);
-  context && console.log(('"' + context + '" is search context').yellow);
-  keyword && console.log(('"' + keyword + '" is search keyword').yellow);
-
-  var todoTxt = _.load(isAll);
-
-  var todos = _jsTodoTxt.TodoTxt.parse(todoTxt);
-
-  _.show(todos);
+  _.show(_.load(option));
 };
