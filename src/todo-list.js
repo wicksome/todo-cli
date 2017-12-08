@@ -100,6 +100,7 @@ _.toElementOfTable = (todo, idx) => {
  */
 _.load = (option) => {
   let origin;
+  // TODO: file exception
   if (option.isAll) {
     origin = fs.readFileSync(DONE_TXT_PATH, 'utf8').concat(fs.readFileSync(TODO_TXT_PATH, 'utf8'));
   } else {
